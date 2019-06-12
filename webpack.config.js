@@ -1,50 +1,45 @@
 const path = require('path');
+const merge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { loadSass, loadJs, loadFile } = require('./webpack.parts');
 
 
-const jsRegex = /\.js$/;
-const sassRegex = /\.(scss|sass)$/;
-const imageRegex = /\.(png|jpe?g|gif)$/;
 
 
-module.exports = {
-    entry: './src/index.js',
-    output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
-    },
-    module: {
-        rules: [
-            {
-                test: sassRegex,
-                use: [
-                    { loader: MiniCssExtractPlugin.loader },
-                    'css-loader',
-                    'sass-loader'
-                ]
-            },
-            {
-                test: jsRegex,
-                exclude: /(node_modules)/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
-                }
-            },
-            {
-                test: imageRegex,
-                use: 'file-loader'
-            }
+const commonConfig = merge([
+    {
+        entry: './src/index.js',
+        output: {
+            path: path.resolve(__dirname, 'dist'),
+            filename: 'bundle.js'
+        },
+        plugins: [
+            new HtmlWebpackPlugin({
+                template: 'public/index.html'
+            })
         ]
-    },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: 'public/index.html'
-        }),
-        new MiniCssExtractPlugin()
-    ],
-    mode: 'none'
+    }
+]);
+
+const developmentConfig = merge([
+    loadSass(),
+    loadJs(),
+    loadFile()
+]);
+
+
+const productionConfig = merge([
+    loadSass(),
+    loadJs(),
+    loadFile()
+]);
+
+
+
+module.exports = mode => {
+    if (mode === "production") {
+        return merge(commonConfig, productionConfig, { mode });
+    }
+
+    return merge(commonConfig, developmentConfig, { mode });
 };
