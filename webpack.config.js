@@ -1,8 +1,11 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const cssRegex = /\.css$/;
+
 const jsRegex = /\.js$/;
 const sassRegex = /\.(scss|sass)$/;
+const imageRegex = /\.(png|jpe?g|gif)$/;
 
 
 module.exports = {
@@ -13,8 +16,35 @@ module.exports = {
     },
     module: {
         rules: [
-            { test: sassRegex, use: ['css-loader', 'sass-loader'] }
+            {
+                test: sassRegex,
+                use: [
+                    { loader: MiniCssExtractPlugin.loader },
+                    'css-loader',
+                    'sass-loader'
+                ]
+            },
+            {
+                test: jsRegex,
+                exclude: /(node_modules)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
+            },
+            {
+                test: imageRegex,
+                use: 'file-loader'
+            }
         ]
     },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'public/index.html'
+        }),
+        new MiniCssExtractPlugin()
+    ],
     mode: 'none'
 };
