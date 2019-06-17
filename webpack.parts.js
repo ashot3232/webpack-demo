@@ -1,4 +1,9 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
+const PrepackWebpackPlugin = require('prepack-webpack-plugin').default;
+
+
 
 const jsRegex = /\.js$/;
 const sassRegex = /\.(scss|sass)$/;
@@ -55,3 +60,19 @@ module.exports.loadFile = () => {
         }
     }
 };
+
+exports.clean = path => ({
+    plugins: [new CleanWebpackPlugin()],
+});
+
+exports.minifyJavaScript = () => ({
+    optimization: {
+        minimizer: [new TerserPlugin({ sourceMap: true })],
+    },
+});
+
+exports.prevalJavaScript = () => ({
+    plugins: [
+        new PrepackWebpackPlugin({ test: /\.js($\|\?)/i })
+    ]
+});

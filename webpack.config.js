@@ -1,7 +1,8 @@
 const path = require('path');
 const merge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { loadSass, loadJs, loadFile } = require('./webpack.parts');
+const { loadSass, loadJs, loadFile, clean, minifyJavaScript, prevalJavaScript } = require('./webpack.parts');
+const DashboardPlugin = require('webpack-dashboard/plugin');
 
 
 
@@ -16,8 +17,10 @@ const commonConfig = merge([
         plugins: [
             new HtmlWebpackPlugin({
                 template: 'public/index.html'
-            })
-        ]
+            }),
+            new DashboardPlugin()
+        ],
+        devtool: 'cheap-source-map'
     }
 ]);
 
@@ -31,7 +34,10 @@ const developmentConfig = merge([
 const productionConfig = merge([
     loadSass(),
     loadJs(),
-    loadFile()
+    loadFile(),
+    clean(),
+    minifyJavaScript(),
+    prevalJavaScript()
 ]);
 
 
